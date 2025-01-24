@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Playfair_Display, Space_Grotesk } from "next/font/google";
+
+const playinit = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--play-fair-display",
+});
+const spaceGrotesk_init = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--space-grotesk",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,7 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="">
+      <body
+        className={" " + playinit.variable + " " + spaceGrotesk_init.variable}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

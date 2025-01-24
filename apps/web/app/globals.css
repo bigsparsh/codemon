@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  --color-grian-50: #ecfdf4;
+  --color-grian-100: #d9fce8;
+  --color-grian-200: #b3f9d2;
+  --color-grian-300: #8ef6bb;
+  --color-grian-400: #68f3a4;
+  --color-grian-500: #43f08e;
+  --color-grian-600: #12e36c;
+  --color-grian-700: #0eaa51;
+  --color-grian-800: #097136;
+  --color-grian-900: #05391b;
+  --color-grian-950: #021c0e;
+}
+
+.play-fair {
+  font-family: var(--play-fair-display) !important;
+}
+.space-grotesk {
+  font-family: var(--space-grotesk) !important;
+}
