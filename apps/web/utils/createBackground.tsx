@@ -11,6 +11,10 @@ export const createBackground = (canvas: HTMLCanvasElement) => {
     canvas.width = window.innerWidth - 40;
     canvas.height = window.innerHeight - 40;
   };
+
+  const gradient = ctx.createRadialGradient(50, 50, 80, 80, 80, 100);
+  gradient.addColorStop(0, "red");
+  gradient.addColorStop(1, "white");
   window.onmousemove = (e) => {
     const currentTime = Date.now();
     const { clientX, clientY } = e;
@@ -78,7 +82,7 @@ class Ball {
     this.alpha -= 0.01;
 
     ctx.beginPath();
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.fillStyle = `rgba(19, 236, 113, ${this.alpha})`;
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
 
