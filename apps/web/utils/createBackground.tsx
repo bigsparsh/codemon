@@ -30,13 +30,8 @@ export const createBackground = (canvas: HTMLCanvasElement) => {
     lastTime = currentTime;
   };
 
-  // const grian950 = "#021c0e";
-  // const grian700 = "#0eaa51";
-
-  // canvas.style.backgroundColor = grian950;
-
   const image = new Image();
-  image.src = "subtract-thin.svg";
+  image.src = "circle.svg";
 
   function animate() {
     if (!ctx) {
@@ -68,11 +63,11 @@ class Ball {
   static instances: Ball[] = [];
 
   constructor(x: number, y: number, size: number, velX: number, vely: number) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
     this.velX = velX;
     this.vely = vely;
+    this.size = rand(50, size);
+    this.x = x - this.size / 2;
+    this.y = y - this.size / 2;
     this.angle = 100;
   }
 
@@ -94,3 +89,7 @@ class Ball {
     }
   }
 }
+
+const rand = (min: number, max: number) => {
+  return Math.round(Math.random() * (max - min) + min);
+};
