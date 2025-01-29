@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FaFolder } from "react-icons/fa";
+import { FaFile, FaFolder } from "react-icons/fa";
 import { Socket } from "socket.io-client";
 
 const FileMenu = ({ id, socket }: { id: string; socket: Socket }) => {
@@ -9,7 +9,7 @@ const FileMenu = ({ id, socket }: { id: string; socket: Socket }) => {
     folders: string[];
   }>();
   useEffect(() => {
-    socket.emit("get files", id);
+    // socket.emit("get files", id);
     socket.on("files", (data: { files: string[]; folders: string[] }) => {
       setFolderStructure(data);
     });
@@ -17,10 +17,15 @@ const FileMenu = ({ id, socket }: { id: string; socket: Socket }) => {
 
   return (
     <div className="p-2">
-      {JSON.stringify(folderStructure, null, 2)}
-      {folderStructure?.files.map((file) => (
+      {folderStructure?.folders.map((file) => (
         <div className="flex gap-3" key={crypto.randomUUID()}>
           <FaFolder />
+          {file}
+        </div>
+      ))}
+      {folderStructure?.files.map((file) => (
+        <div className="flex gap-3" key={crypto.randomUUID()}>
+          <FaFile />
           {file}
         </div>
       ))}

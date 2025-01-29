@@ -8,7 +8,7 @@ import "@xterm/xterm/css/xterm.css";
 import FileMenu from "../../components/FileMenu";
 
 const CodePage = () => {
-  const [term, setTerm] = useState<Terminal>();
+  // const [term, setTerm] = useState<Terminal>();
   const [socket, setSocket] = useState<Socket>();
   const [id, setId] = useState<string>();
   const termWindow = useRef<HTMLDivElement>(null);
