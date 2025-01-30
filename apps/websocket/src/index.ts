@@ -1,7 +1,8 @@
 import { Server } from "socket.io";
 import express from "express";
 import http from "http";
-import * as pty from "node-pty";
+import { User } from "./User";
+import { deleteEverything, expandFolder } from "./Storage";
 
 const app = express();
 const server = http.createServer(app);
@@ -14,24 +15,26 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  const term = pty.spawn("bash", [], {
-    name: "xterm-color",
-    cols: 80,
-    rows: 30,
-    cwd: process.env.HOME,
-    env: process.env,
+  // Get the details of a code repl session
+  socket.on("send info", (lord_id) => {
+    User.instances.set(socket, new User(socket, lord_id));
   });
-  term.onData((data) => {
-    socket.emit("terminal output", data);
-  });
-  term.write("ls\r");
 
+  // Handle terminal input
   socket.on("terminal input", (data) => {
-    term.write(data);
+    User.instances.get(socket)?.twrite(data);
+  });
+
+  socket.on("expand files", async (lord_id, fname) => {
+    socket.emit("expand", fname, await expandFolder(fname, lord_id));
+  });
+
+  socket.on("delete everything", async () => {
+    deleteEverything();
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    User.remove_instance(socket);
   });
 });
 

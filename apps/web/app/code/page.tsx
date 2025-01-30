@@ -56,7 +56,7 @@ const CodePage = () => {
         </div>
         <div className="basis-3/6 bg-grian-950 rounded-xl overflow-clip">
           <Editor
-            defaultLanguage="html"
+            defaultLanguage="javascript"
             theme="vs-dark"
             options={{
               fontSize: 18,
