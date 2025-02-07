@@ -34,3 +34,8 @@ export const writeLocalFile = async (file: string, content: string) => {
     fs.writeFileSync(file, content);
   } catch (e) { }
 };
+
+export const openLocalFile = async (file: string, lord_id: string) => {
+  const content = fs.readFileSync(`/tmp/project/${lord_id}/${file}`);
+  return content.toString();
+};

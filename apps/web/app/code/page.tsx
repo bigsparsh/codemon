@@ -8,10 +8,11 @@ import "@xterm/xterm/css/xterm.css";
 import FileMenu from "../../components/FileMenu";
 
 const CodePage = () => {
-  // const [term, setTerm] = useState<Terminal>();
   const [socket, setSocket] = useState<Socket>();
   const [id, setId] = useState<string>();
   const termWindow = useRef<HTMLDivElement>(null);
+  const [editorContent, setEditorContent] = useState<string>();
+  const [editorLang, setEditorLang] = useState<string>("javascript");
 
   useEffect(() => {
     const ind = crypto.randomUUID();
@@ -19,6 +20,9 @@ const CodePage = () => {
     const wss = io("ws://localhost:3003");
     wss.on("connect", () => {
       wss.emit("send info", ind);
+      wss.on("file content", (data: string) => {
+        setEditorContent(data);
+      });
     });
     setSocket(wss);
 
@@ -52,22 +56,27 @@ const CodePage = () => {
       <div className="p-2 bg-grian-950 rounded-xl text-sm">{id}</div>
       <div className="flex h-full gap-2">
         <div className="basis-1/6 bg-grian-950 rounded-xl">
-          {id && socket && <FileMenu id={id} socket={socket} />}
+          {id && socket && (
+            <FileMenu id={id} socket={socket} setEditorLang={setEditorLang} />
+          )}
         </div>
         <div className="basis-3/6 bg-grian-950 rounded-xl overflow-clip">
-          <Editor
-            defaultLanguage="javascript"
-            theme="vs-dark"
-            options={{
-              fontSize: 18,
-              minimap: {
-                enabled: false,
-              },
-              padding: {
-                top: 10,
-              },
-            }}
-          />
+          {
+            <Editor
+              language={editorLang}
+              value={editorContent}
+              theme="vs-dark"
+              options={{
+                fontSize: 18,
+                minimap: {
+                  enabled: false,
+                },
+                padding: {
+                  top: 10,
+                },
+              }}
+            />
+          }
         </div>
         <div className="flex flex-col basis-2/6 gap-2">
           <div className="rounded-xl bg-grian-950 basis-2/3"></div>

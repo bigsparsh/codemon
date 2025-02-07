@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FaFile, FaFolder, FaJs } from "react-icons/fa";
 import { Socket } from "socket.io-client";
 
@@ -9,12 +9,14 @@ const ExpandedFileMenu = ({
   id,
   socket,
   keyname,
+  setEditorLang,
 }: {
   depth: number;
   content: { files: string[]; folders: string[] };
   id: string;
   socket: Socket;
   keyname: string;
+  setEditorLang: Dispatch<SetStateAction<string>>;
 }) => {
   const [expanded, setExpanded] = useState<
     Map<
@@ -74,6 +76,7 @@ const ExpandedFileMenu = ({
                 content={expanded.get(keyname + file)!}
                 id={id}
                 socket={socket}
+                setEditorLang={setEditorLang}
               />
             )}
           </div>
@@ -83,6 +86,34 @@ const ExpandedFileMenu = ({
           <div
             className="flex gap-2 line-clamp-1 cursor-pointer hover:bg-grian-800 p-1 rounded-md items-center"
             key={file}
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditorLang(() => {
+                switch (file.split(".").pop()) {
+                  case "js":
+                    return "javascript";
+                  case "ts":
+                    return "typescript";
+                  case "py":
+                    return "python";
+                  case "html":
+                    return "html";
+                  case "css":
+                    return "css";
+                  case "json":
+                    return "json";
+                  case "xml":
+                    return "xml";
+                  case "md":
+                    return "markdown";
+                  case "sh":
+                    return "shell";
+                  default:
+                    return "plaintext";
+                }
+              });
+              socket.emit("open file", id, keyname + file);
+            }}
           >
             {file.split(".").pop() === "js" ? <FaJs /> : <FaFile />}
             {file}

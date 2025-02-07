@@ -19,16 +19,16 @@ export class User {
       cwd: process.env.HOME,
       env: process.env,
     });
-    this.terminal.write("cd /tmp/project\r");
     this.init();
   }
 
   async init() {
-    this.attach_handlers();
     await createFolder(this.lord_id, ProjectType.NODE);
     await new Promise((resolve) => setTimeout(resolve, 2500));
     await listObjectsInFolder(this.lord_id, true, this.socket);
     await createLocalFolder("demo-r2/nodejs/", this.lord_id);
+    this.terminal.write(`cd /tmp/project/${this.lord_id}\r`);
+    this.attach_handlers();
   }
 
   attach_handlers() {

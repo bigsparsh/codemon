@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import { User } from "./User";
 import { deleteEverything, expandFolder, getFileContent } from "./Storage";
+import { openLocalFile } from "./Local";
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,11 @@ io.on("connection", (socket) => {
   // Get the details of a code repl session
   socket.on("send info", (lord_id) => {
     User.instances.set(socket, new User(socket, lord_id));
+  });
+
+  socket.on("open file", async (lord_id: string, file_name: string) => {
+    const content = await openLocalFile(file_name, lord_id);
+    socket.emit("file content", content);
   });
 
   // Handle terminal input
