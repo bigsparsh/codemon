@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import * as pty from "node-pty";
 import { createFolder, listObjectsInFolder, ProjectType } from "./Storage";
+import { createLocalFolder } from "./Local";
 
 export class User {
   socket: Socket;
@@ -18,6 +19,7 @@ export class User {
       cwd: process.env.HOME,
       env: process.env,
     });
+    this.terminal.write("cd /tmp/project\r");
     this.init();
   }
 
@@ -25,7 +27,8 @@ export class User {
     this.attach_handlers();
     await createFolder(this.lord_id, ProjectType.NODE);
     await new Promise((resolve) => setTimeout(resolve, 2500));
-    await listObjectsInFolder(this.lord_id, this.socket);
+    await listObjectsInFolder(this.lord_id, true, this.socket);
+    await createLocalFolder("demo-r2/nodejs/", this.lord_id);
   }
 
   attach_handlers() {

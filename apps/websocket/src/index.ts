@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import express from "express";
 import http from "http";
 import { User } from "./User";
-import { deleteEverything, expandFolder } from "./Storage";
+import { deleteEverything, expandFolder, getFileContent } from "./Storage";
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +31,10 @@ io.on("connection", (socket) => {
 
   socket.on("delete everything", async () => {
     deleteEverything();
+  });
+
+  socket.on("file content", async (file_name: string, lord_id: string) => {
+    await getFileContent(file_name, lord_id);
   });
 
   socket.on("disconnect", () => {
