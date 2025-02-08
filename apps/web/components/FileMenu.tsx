@@ -8,10 +8,12 @@ const FileMenu = ({
   id,
   socket,
   setEditorLang,
+  setCurrentFile,
 }: {
   id: string;
   socket: Socket;
   setEditorLang: Dispatch<SetStateAction<string>>;
+  setCurrentFile: Dispatch<SetStateAction<string>>;
 }) => {
   const [folderStructure, setFolderStructure] = useState<{
     files: string[];
@@ -71,6 +73,7 @@ const FileMenu = ({
               id={id}
               socket={socket}
               setEditorLang={setEditorLang}
+              setCurrentFile={setCurrentFile}
             />
           )}
         </div>
@@ -106,6 +109,7 @@ const FileMenu = ({
               }
             });
             socket.emit("open file", id, file);
+            setCurrentFile(file);
           }}
         >
           {file.split(".").pop() === "js" ? <FaJs /> : <FaFile />}

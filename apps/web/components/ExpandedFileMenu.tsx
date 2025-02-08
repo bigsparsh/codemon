@@ -10,6 +10,7 @@ const ExpandedFileMenu = ({
   socket,
   keyname,
   setEditorLang,
+  setCurrentFile,
 }: {
   depth: number;
   content: { files: string[]; folders: string[] };
@@ -17,6 +18,7 @@ const ExpandedFileMenu = ({
   socket: Socket;
   keyname: string;
   setEditorLang: Dispatch<SetStateAction<string>>;
+  setCurrentFile: Dispatch<SetStateAction<string>>;
 }) => {
   const [expanded, setExpanded] = useState<
     Map<
@@ -41,6 +43,7 @@ const ExpandedFileMenu = ({
       },
     );
   }, [depth, socket]);
+
   return (
     <div
       style={{
@@ -77,6 +80,7 @@ const ExpandedFileMenu = ({
                 id={id}
                 socket={socket}
                 setEditorLang={setEditorLang}
+                setCurrentFile={setCurrentFile}
               />
             )}
           </div>
@@ -113,6 +117,7 @@ const ExpandedFileMenu = ({
                 }
               });
               socket.emit("open file", id, keyname + file);
+              setCurrentFile(keyname + file);
             }}
           >
             {file.split(".").pop() === "js" ? <FaJs /> : <FaFile />}

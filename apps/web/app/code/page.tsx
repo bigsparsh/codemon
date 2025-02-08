@@ -13,6 +13,7 @@ const CodePage = () => {
   const termWindow = useRef<HTMLDivElement>(null);
   const [editorContent, setEditorContent] = useState<string>();
   const [editorLang, setEditorLang] = useState<string>("javascript");
+  const [currentFile, setCurrentFile] = useState<string>("index.js");
 
   useEffect(() => {
     const ind = crypto.randomUUID();
@@ -43,7 +44,6 @@ const CodePage = () => {
         wss.emit("terminal input", data);
       });
       wss.on("terminal output", (data: string) => {
-        console.log("Data: ", data);
         terminal.write(data);
       });
     };
@@ -51,32 +51,44 @@ const CodePage = () => {
     init();
   }, []);
 
+  let debounce: NodeJS.Timeout;
+  const editorChangeHandler = (value: string | undefined) => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      socket?.emit("editor content", id, currentFile, value);
+    }, 150);
+  };
+
   return (
     <div className="bg-grian-900 h-screen flex flex-col p-2 gap-2">
       <div className="p-2 bg-grian-950 rounded-xl text-sm">{id}</div>
       <div className="flex h-full gap-2">
         <div className="basis-1/6 bg-grian-950 rounded-xl">
           {id && socket && (
-            <FileMenu id={id} socket={socket} setEditorLang={setEditorLang} />
+            <FileMenu
+              id={id}
+              socket={socket}
+              setEditorLang={setEditorLang}
+              setCurrentFile={setCurrentFile}
+            />
           )}
         </div>
         <div className="basis-3/6 bg-grian-950 rounded-xl overflow-clip">
-          {
-            <Editor
-              language={editorLang}
-              value={editorContent}
-              theme="vs-dark"
-              options={{
-                fontSize: 18,
-                minimap: {
-                  enabled: false,
-                },
-                padding: {
-                  top: 10,
-                },
-              }}
-            />
-          }
+          <Editor
+            language={editorLang}
+            value={editorContent}
+            onChange={editorChangeHandler}
+            theme="vs-dark"
+            options={{
+              fontSize: 18,
+              minimap: {
+                enabled: false,
+              },
+              padding: {
+                top: 10,
+              },
+            }}
+          />
         </div>
         <div className="flex flex-col basis-2/6 gap-2">
           <div className="rounded-xl bg-grian-950 basis-2/3"></div>
