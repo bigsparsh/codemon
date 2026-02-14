@@ -1,84 +1,182 @@
-# Turborepo starter
+# Codemon
 
-This Turborepo starter is maintained by the Turborepo core team.
+A cloud-based code editor and development environment for programming enthusiasts to create, learn, and share projects.
 
-## Using this example
+![Codemon Screenshot](assets/2026-02-14-113807_hyprshot.png)
 
-Run the following command:
+## Features
 
-```sh
-npx create-turbo@latest
-```
+- **Monaco Code Editor** - VS Code's editor in the browser with syntax highlighting and IntelliSense
+- **Integrated Terminal** - Full xterm.js terminal with real-time shell access via node-pty
+- **File Browser** - Navigate and manage project files with an expandable tree view
+- **Real-time Sync** - WebSocket-powered communication for instant updates
+- **Cloud Storage** - Project files stored on Cloudflare R2 (S3-compatible)
+- **Project Templates** - Start with Node.js or Python templates
+- **Containerized Execution** - Isolated Docker containers per session, deployed via Kubernetes
 
-## What's inside?
+## Tech Stack
 
-This Turborepo includes the following packages/apps:
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | Next.js 15, React 19, TailwindCSS 4, Monaco Editor, xterm.js |
+| **Backend** | Express, Socket.io, node-pty |
+| **Storage** | Cloudflare R2 (AWS S3 SDK) |
+| **Infrastructure** | Docker, Kubernetes |
+| **Monorepo** | Turborepo, pnpm |
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Project Structure
 
 ```
-cd my-turborepo
-pnpm build
+codemon/
+├── apps/
+│   ├── web/                 # Next.js frontend application
+│   │   ├── app/             # App router pages
+│   │   │   ├── page.tsx     # Landing page
+│   │   │   └── code/        # Code editor page
+│   │   └── components/      # React components (FileMenu, etc.)
+│   └── websocket/           # Express + Socket.io backend (dev)
+│       └── src/
+│           ├── index.ts     # WebSocket server entry
+│           ├── User.ts      # User session & terminal management
+│           ├── Storage.ts   # R2/S3 storage operations
+│           └── Local.ts     # Local file operations
+├── runner/                  # Docker container for K8s deployment
+│   ├── Dockerfile           # Container image definition
+│   └── src/
+│       ├── index.ts         # WebSocket server entry
+│       ├── User.ts          # User session & PTY terminal
+│       ├── Storage.ts       # R2 storage operations
+│       └── Local.ts         # Local file I/O
+├── packages/
+│   ├── ui/                  # Shared React component library
+│   ├── eslint-config/       # Shared ESLint configurations
+│   └── typescript-config/   # Shared TypeScript configurations
+└── assets/                  # Project screenshots and media
 ```
 
-### Develop
+## Getting Started
 
-To develop all apps and packages, run the following command:
+### Prerequisites
 
+- Node.js >= 18
+- pnpm 9.0.0+
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/codemon.git
+cd codemon
+
+# Install dependencies
+pnpm install
 ```
-cd my-turborepo
+
+### Environment Variables
+
+Create a `.env` file in `apps/websocket/` with:
+
+```env
+R2_ACCOUNT_NAME=your_cloudflare_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_key
+```
+
+### Development
+
+```bash
+# Start all apps in development mode
 pnpm dev
 ```
 
-### Remote Caching
+This runs:
+- **Web app** at `http://localhost:3000`
+- **WebSocket server** at `ws://localhost:3003`
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+### Build
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
+```bash
+# Build all apps and packages
+pnpm build
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Usage
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+1. Visit the landing page at `http://localhost:3000`
+2. Click "Get Started" to enter the code editor
+3. A unique session ID is generated for your project
+4. Use the file browser to navigate files
+5. Edit code in the Monaco editor
+6. Run commands in the integrated terminal
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start all apps in development mode |
+| `pnpm build` | Build all apps and packages |
+| `pnpm lint` | Run ESLint across the workspace |
+| `pnpm format` | Format code with Prettier |
+
+## Architecture
 
 ```
-npx turbo link
+                                       ┌─────────────────────────────────────┐
+                                       │           Kubernetes Cluster        │
+┌─────────────────┐     WebSocket      │  ┌─────────────┐ ┌─────────────┐   │
+│                 │◄──────────────────►│  │   Runner    │ │   Runner    │   │
+│   Next.js Web   │                    │  │    Pod 1    │ │    Pod 2    │   │
+│   (Port 3000)   │    Terminal I/O    │  │  (User A)   │ │  (User B)   │   │
+│                 │    File Events     │  └──────┬──────┘ └──────┬──────┘   │
+└─────────────────┘                    │         │               │          │
+                                       └─────────┼───────────────┼──────────┘
+                                                 │               │
+                                                 ▼               ▼
+                                       ┌─────────────────────────────────────┐
+                                       │          Cloudflare R2              │
+                                       │          (S3 Storage)               │
+                                       └─────────────────────────────────────┘
 ```
 
-## Useful Links
+## Docker & Kubernetes Deployment
 
-Learn more about the power of Turborepo:
+The `runner/` directory contains a production-ready Docker image for deploying isolated code execution environments via Kubernetes.
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+### Building the Docker Image
+
+```bash
+cd runner
+
+# Build the image
+docker build -t codemon-runner .
+
+# Push to Docker Hub
+docker tag codemon-runner yourusername/codemon-runner:latest
+docker push yourusername/codemon-runner:latest
+```
+
+### What the Runner Does
+
+- Spawns an isolated PTY terminal (bash) per user session
+- Syncs files between local container storage and Cloudflare R2
+- Handles real-time code editing with auto-save to cloud
+- Provides WebSocket endpoints for terminal I/O and file operations
+
+### Environment Variables (Runner)
+
+```env
+R2_ACCOUNT_NAME=your_cloudflare_account_id
+R2_ACCESS_KEY_ID=your_r2_access_key
+R2_SECRET_ACCESS_KEY=your_r2_secret_key
+```
+
+### Kubernetes Integration
+
+Each user session can spin up its own runner pod, providing:
+- **Isolation** - Separate containers prevent code interference
+- **Scalability** - K8s auto-scales based on demand
+- **Resource limits** - Configurable CPU/memory per pod
+
+## License
+
+ISC
